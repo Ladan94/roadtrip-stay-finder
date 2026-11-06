@@ -1,0 +1,20 @@
+# Review before creating a Blueprint: initial service creation starts a deployment.
+services:
+  - type: web
+    name: roadtrip-stay-finder
+    runtime: node
+    plan: free
+    repo: https://github.com/Ladan94/roadtrip-stay-finder
+    branch: main
+    autoDeployTrigger: off
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: '24'
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_TELEMETRY_DISABLED
+        value: '1'
+    # Render injects PORT. Demo mode needs no provider keys or database.

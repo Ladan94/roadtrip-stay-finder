@@ -69,7 +69,7 @@ Live search checks two lodging candidates in each of three overnight areas (dedu
 
 ### Live production rate limiting
 
-Set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` for a shared Redis rate limiter before enabling live searches on Vercel production. Live production requests and autocomplete fail closed without this configuration. Local development and demo use per-process minute buckets. Production must trust the hosting platform's forwarded IP headers; configure equivalent trusted-proxy handling before deploying elsewhere. Set Google Cloud billing caps, quotas and abuse monitoring as additional safeguards. Rate limiting is not a complete anti-abuse system.
+Set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` for a shared Redis rate limiter before enabling live searches on any production host (including Render). Live production requests and autocomplete fail closed without this configuration. Local development and demo use per-process minute buckets. The host must overwrite trusted proxy headers: client buckets use `X-Forwarded-For`. Review your hosting proxy configuration before enabling paid live APIs. Set Google Cloud billing caps, quotas and abuse monitoring as additional safeguards. Rate limiting is not a complete anti-abuse system.
 
 ### Booking.com Demand API
 
@@ -116,15 +116,38 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e
 
 Set `CI=true` to run browser tests against `npm start` after a build. GitHub Actions performs lint, strict type checking, unit/API tests, production build and desktop/mobile browser checks. No external API keys are required by tests. Actual live-provider and paid API validation are separate, credential-dependent checks.
 
-## Deploy on Vercel
+## Deploy on Render (Free Web Service)
 
-1. Import `Ladan94/roadtrip-stay-finder` from GitHub in Vercel, with the repository root as the project root.
-2. Choose Node.js 24 and the Next.js preset; retain the `npm run build` command. `vercel.json` configures 60-second serverless functions. Use a Vercel plan supporting that duration for live planning.
-3. Deploy with **no environment variables** to publish the working fictional demo.
-4. Optionally add the Google keys and Upstash settings above, configure Google referrer/API restrictions and billing quotas, and redeploy. Public `NEXT_PUBLIC_` variables are read at build time.
-5. Open the actual Vercel URL, complete a demo journey, then verify a real route with live mode and inspect provider usage/errors before advertising live discovery.
+No Vercel account, provider credentials, database or paid API access is required for the public **fictional demo**. The checked-in [render.yaml](render.yaml) defines a Node.js Web Service with `plan: free`, where Render offers that plan for your account/region.
 
-Deployment requires an authorized Vercel account and repository connection. No public URL should be claimed until it is actually deployed and verified. See [deployment checklist](docs/DEPLOYMENT.md).
+After reviewing and merging this deployment PR:
+
+1. Sign in to [Render](https://dashboard.render.com/), connect GitHub and allow access to `Ladan94/roadtrip-stay-finder`.
+2. Choose **New → Blueprint**, select this repository and branch `main`. Render reads `render.yaml` from the repository root.
+3. Review the service and confirm the **Free** plan. Creating the Blueprint starts the initial deployment; do this only when ready to deploy. If Free is unavailable, stop and choose an acceptable plan yourself—this configuration never selects a paid plan automatically.
+4. Keep the provided settings: Node.js **24**, build command `npm ci --include=dev && npm run build`, start command `npm start`, health check `/`, and `NODE_ENV=production`. Build dependencies are explicitly installed because Tailwind and TypeScript are needed at build time.
+5. Leave Google, Booking.com and Redis variables unset for demo mode. Render supplies `PORT`; do not hardcode it. The existing `next start --hostname 0.0.0.0` command reads `PORT` automatically.
+6. When Render reports the service healthy, open its actual `https://<service-name>.onrender.com` URL and complete a demo journey. Verify the fictional-data notices, German/Persian preferences, dark mode and mobile layout.
+
+Automatic deploys are disabled in the Blueprint (`autoDeployTrigger: off`). After approving future changes, deploy the desired commit manually from Render. Review Blueprint synchronization settings in your dashboard too. Render creation/deployment is a separate action; no deployment is performed merely by committing this file.
+
+You can also create a **Web Service** manually with the same settings and repository root, selecting the Free plan and turning off automatic deploys. The app must be a Web Service, not a Static Site, because trip planning uses server-side API routes.
+
+Render Free services may spin down after inactivity and take time to wake up. Their filesystem is ephemeral, and usage/build/resource limits apply. No trip data or database is required. Check [Render Free service limitations](https://render.com/docs/free) for current eligibility and limits. A successful local build does not prove a Free-instance deployment fits every future workload.
+
+### Optional live discovery on Render
+
+Add the server-only Google key and Redis settings privately in Render's **Environment** panel; never add secret values to `render.yaml`. The only intentionally public key is `NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY`; restrict it to the Maps JavaScript API and your exact Render/custom-domain referrers. Rebuild after changing any `NEXT_PUBLIC_` value. Live Google usage may incur charges; it is unnecessary for the demo. Booking.com inventory remains disconnected pending an authorized integration.
+
+### Verify Render-style startup locally
+
+```sh
+npm ci --include=dev
+npm run build
+PORT=10000 npm start
+```
+
+In another terminal, request port 10000 and complete a demo trip. No custom server or platform adapter is needed. See [deployment checklist](docs/DEPLOYMENT.md) for the release checks. Other Node.js hosts are also supported; Render and Vercel are not runtime dependencies.
 
 ## Troubleshooting
 

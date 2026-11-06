@@ -2,10 +2,7 @@ import { createHash } from 'node:crypto';
 const windows = new Map<string, { count: number; reset: number }>();
 /** No trip data retained. Anonymous rate buckets expire after one minute. */
 export async function rateLimit(request: Request, scope: string, limit = 12) {
-  const address =
-    request.headers.get('x-vercel-forwarded-for')?.split(',')[0]?.trim() ??
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    'local';
+  const address = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'local';
   const bucket = Math.floor(Date.now() / 60000);
   const id = createHash('sha256').update(`${address}:${scope}:${bucket}`).digest('hex');
   const url = process.env.UPSTASH_REDIS_REST_URL,
@@ -28,10 +25,7 @@ export async function rateLimit(request: Request, scope: string, limit = 12) {
     if (typeof data.result !== 'number') throw new Error('Rate limiter unavailable');
     return data.result <= limit;
   }
-  if (
-    process.env.VERCEL_ENV === 'production' &&
-    (scope === 'live-plan' || scope === 'autocomplete')
-  )
+  if (process.env.NODE_ENV === 'production' && (scope === 'live-plan' || scope === 'autocomplete'))
     throw new Error('Configure distributed rate limiting before enabling live production searches');
   const now = Date.now();
   for (const [k, v] of windows) if (v.reset <= now) windows.delete(k);

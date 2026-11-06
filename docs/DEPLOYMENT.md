@@ -6,23 +6,23 @@ The app runs a labeled fictional demo with no external keys or database. Install
 
 ## External prerequisites
 
-- **Public deployment:** authorized Vercel project, GitHub repository connection and actual URL verification.
-- **Live discovery:** Google Cloud billing, Geocoding, Routes, Places (New), Time Zone and Maps JavaScript access; restricted server and browser keys. Configure these in Vercel environment settings and redeploy.
-- **Production abuse controls:** Upstash Redis REST URL/token, Google quotas and billing alerts. Missing Redis fails live requests closed in Vercel production.
+- **Public deployment:** authorized Render account and Web Service, GitHub repository connection and actual URL verification.
+- **Live discovery:** Google Cloud billing, Geocoding, Routes, Places (New), Time Zone and Maps JavaScript access; restricted server and browser keys. Configure these in Render environment settings and redeploy.
+- **Production abuse controls:** Upstash Redis REST URL/token, Google quotas and billing alerts. Missing Redis fails live requests closed in production on every host.
 - **Live reservations:** not implemented or enabled; requires approved Booking.com Demand partner access and a separately validated integration. Setting placeholder booking variables does not enable inventory.
 
 ## Release checks
 
 1. CI must pass on the final commit.
-2. Deploy the feature branch as a Vercel preview; do not merge until reviewed.
-3. On the actual preview URL, complete a demo trip on desktop and mobile. Verify the fictional-data notice and all three language preferences.
+2. Review the deployment PR and obtain explicit approval before merging or creating the Render Blueprint. Follow the README Render instructions; initial Blueprint creation starts a deployment.
+3. On the actual Render service URL, complete a demo trip on desktop and mobile. Verify the fictional-data notice and all three language preferences.
 4. If live mode is enabled, test a future departure with a real European origin and destination. Confirm Google attribution, a navigable route, plausible driving detours, and provider links. Check that unknown prices, breakfast, official stars and availability remain unknown.
 5. Check provider/hosting quotas and error reporting without logging keys or trip bodies.
 6. Merge only after review, then verify the production URL.
 
 ## Manual GitHub handoff if API authorization is unavailable
 
-The feature branch is `feat/roadtrip-stay-finder`. Once pushed, open a pull request from that branch to `main` using the repository's **Compare & pull request** button. The reviewable PR description is in [PULL_REQUEST.md](PULL_REQUEST.md). Do not force-push or merge without review.
+The Render feature branch is `feat/render-deployment`. Once pushed, open a pull request from that branch to `main` using the repository's **Compare & pull request** button. The reviewable PR description is in [PULL_REQUEST.md](PULL_REQUEST.md). Do not force-push or merge without review.
 
 ## Current limits
 
@@ -31,3 +31,7 @@ The feature branch is `feat/roadtrip-stay-finder`. Once pushed, open a pull requ
 - Overnight candidate timing and detours are estimates. Nearby search is bounded, and live searches inspect at most six unique lodging candidates and four break areas.
 - No real hotel photos are fetched. Sample artwork is original; live results use a neutral placeholder.
 - Date/occupancy/budget/breakfast filtering is fully demonstrated on fictional fixtures. Live discovery lacks booking inventory to verify those requirements.
+
+## Render service settings
+
+The root `render.yaml` requests a Free Node Web Service, Node 24, `npm ci --include=dev && npm run build`, and `npm start`. The existing start script binds all interfaces and honors Render’s injected `PORT`. The `/` health check needs no external APIs. Automatic deploys are off. No disk, database or secret values are provisioned. Free-plan availability, cold starts and resource limits are controlled by Render. Vercel is not required; `vercel.json` remains an optional configuration for users who choose that host.
