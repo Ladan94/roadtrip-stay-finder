@@ -1,0 +1,23 @@
+import type { Trip } from '@/lib/types';
+export const trip: Trip = {
+  mode: 'demo',
+  postalCode: '10115',
+  country: 'DE',
+  destination: 'Munich',
+  direction: 'south',
+  driveHours: 4,
+  departureDate: '2028-06-01',
+  departureTime: '09:00',
+  checkIn: '2028-06-01',
+  checkOut: '2028-06-02',
+  adults: 2,
+  children: 0,
+  budget: 180,
+  breakfast: true,
+  minStars: 0,
+  minRating: 4,
+  maxDetour: 20,
+  stopWindow: 30,
+  breakEvery: 2,
+  breakMinutes: 20,
+};
