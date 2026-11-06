@@ -12,10 +12,24 @@ it('limits repeated requests and expires buckets', async () => {
   vi.useRealTimers();
 });
 it('fails closed for live production without shared rate limiting', async () => {
-  vi.stubEnv('VERCEL_ENV', 'production');
+  vi.stubEnv('NODE_ENV', 'production');
   vi.stubEnv('UPSTASH_REDIS_REST_URL', '');
   await expect(rateLimit(new Request('http://localhost'), 'live-plan')).rejects.toThrow(
     /distributed/,
   );
   vi.unstubAllEnvs();
+});
+
+it('keeps the demo available in production without provider credentials or Redis', async () => {
+  vi.stubEnv('NODE_ENV', 'production');
+  vi.stubEnv('UPSTASH_REDIS_REST_URL', '');
+  vi.stubEnv('UPSTASH_REDIS_REST_TOKEN', '');
+  try {
+    expect(await rateLimit(new Request('http://localhost'), 'demo-plan')).toBe(true);
+    await expect(rateLimit(new Request('http://localhost'), 'autocomplete')).rejects.toThrow(
+      /distributed/,
+    );
+  } finally {
+    vi.unstubAllEnvs();
+  }
 });

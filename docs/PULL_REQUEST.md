@@ -1,7 +1,7 @@
-# Build RoadTrip Stay Finder with a working demo and Google discovery adapters
+# Add Render Free Web Service deployment support
 
-The repository previously contained only a README and license. This change adds a Next.js application with a three-step trip wizard, route and overnight-area planning, hotel ranking and selection, café/bakery stops, interactive maps, English/German/Persian RTL, and light/dark mode.
+Adds a Render Blueprint for the existing Next.js app with Node 24, the production package scripts, a homepage health check and automatic deploys disabled. The existing start command binds `0.0.0.0` and reads Render's `PORT`; demo planning requires no Google, Booking.com or Redis credentials.
 
-The default demo is usable without credentials and labels every fixture as fictional. Google live discovery is isolated behind validated, rate-limited server endpoints. It does not claim room prices, inventory, official stars, occupancy or breakfast inclusion. Booking.com Demand remains explicitly disconnected pending approved partner access and implementation against that partner contract.
+Makes production live-search rate-limit safeguards host-independent and documents Render setup, optional secret configuration, Free-plan limitations and manual deployment. Vercel remains optional. No deployment or merge has been performed.
 
-Includes strict TypeScript, ESLint, Vitest unit/API/provider tests, desktop/mobile Playwright and axe checks, security headers, privacy guidance, GitHub Actions and Vercel deployment configuration. See the final delivery report for executed validation results; live Google requests and a public Vercel deployment require external credentials and account authorization.
+Validation passed: production build, strict TypeScript, ESLint, formatting, 34 unit/API tests and 18 desktop/mobile browser tests including accessibility and translations. With `PORT=10000 npm start`, the server bound `0.0.0.0:10000`; homepage and credential-free demo API requests both returned HTTP 200. No Render service was created or deployed.
