@@ -1,17 +1,38 @@
 # RoadTrip Stay Finder
 
-A thoughtful European road-trip planner built with Next.js, React, strict TypeScript and Tailwind CSS. Plan your driving rhythm, choose an overnight area, compare stays, and discover coffee and bakery breaks. English, German and Persian (RTL), with persistent language and light/dark preferences.
+Plan a European road trip with room for a good night’s sleep, a great coffee and a slower pace. RoadTrip Stay Finder helps you explore overnight stops and bakery or café breaks through a friendly, step-by-step planner.
 
-**Status:** fully usable fictional demo; Google live discovery integration implemented and tested with mocked provider contracts. Real Google responses, live room inventory and public deployment require external access and have not been verified. This is not a reservation service.
+## Live Website
 
-## Run locally
+**[Open RoadTrip Stay Finder →](https://roadtrip-stay-finder.onrender.com/)**
 
-Requires Node.js 24 LTS and npm. Use the existing checkout; a separate Git worktree is unnecessary.
+The application is hosted on **Render**. If the Free service is asleep, the first visit may take a little longer while it wakes up.
+
+> **Current demo:** the route, businesses, ratings, prices and breakfast details are fictional sample data. **Live hotel prices and availability are not connected**, and the app cannot confirm or reserve a room. Google route and place discovery is a separate, optional integration that requires credentials; it does not provide booking inventory.
+
+## Main features
+
+- **Plan at your pace:** enter a starting postal code and country, an optional destination, your departure time and how long you want to drive before an overnight stop.
+- **Explore stays:** compare fictional hotel cards, review sample ratings and breakfast details, and refine results by budget, official star category, guest score and detour time.
+- **See your journey:** explore an interactive sample route, select a stay and view its estimated driving impact.
+- **Make time for breaks:** choose your break interval and discover sample bakery and café stops along the route.
+- **Use your preferred language:** English, German and Persian, including right-to-left layouts, persistent language preferences, and light and dark modes.
+- **Plan on any screen:** responsive layouts, keyboard-friendly controls and helpful loading, error and empty states.
+
+The demo works without API keys and uses a fixed, illustrative **Berlin–Munich** route. Entered addresses do not change that sample route. Optional Google discovery supports real routes and place listings after configuration; room rates, availability and breakfast inclusion remain unverified.
+
+## Installation and local development
+
+Install **Node.js 24 LTS** and npm, then clone the repository:
 
 ```sh
+git clone https://github.com/Ladan94/roadtrip-stay-finder.git
+cd roadtrip-stay-finder
 npm ci
 npm run dev
 ```
+
+If you already have a checkout, run the last two commands from its root.
 
 Open the development server on port 3000. No credentials or `.env` file are needed for demo mode. To run a production build:
 
@@ -22,12 +43,42 @@ npm start
 
 Webpack is explicitly selected because Turbopack worker sockets are unsupported in some cloud sandboxes. Both are supported Next.js build options.
 
-## What you can do
+## Hosting on Render (primary)
 
-- Three-step wizard: origin postal code and country, optional destination, departure time, driving duration, dates, party size, total nightly EUR budget, breakfast, official star category, guest score, maximum detour, overnight window and break rhythm.
-- Sample route, selectable hotel markers, hotel ranking, price and breakfast refinement, guest-score sorting, empty states and route impact summaries.
-- Traffic-aware Google driving routes, time-based position estimation, three candidate overnight areas, driving detour comparisons, and nearby lodging/café/bakery/rest-stop discovery.
-- Keyboard-accessible controls, responsive layouts and localized interfaces. Location/business names, Google opening hours, detailed provider diagnostics and data limitations may remain in the provider's English. Automated axe checks supplement, rather than certify, accessibility.
+The live website is hosted on **Render**. No provider credentials, database or paid API access is required to host the **fictional demo**. The checked-in [render.yaml](render.yaml) defines a Node.js Web Service with `plan: free`, where Render offers that plan for your account/region.
+
+To deploy your own instance:
+
+1. Sign in to [Render](https://dashboard.render.com/), connect GitHub and allow access to `Ladan94/roadtrip-stay-finder`.
+2. Choose **New → Blueprint**, select this repository and branch `main`. Render reads `render.yaml` from the repository root.
+3. Review the service and confirm the **Free** plan. Creating the Blueprint starts the initial deployment; do this only when ready to deploy. If Free is unavailable, stop and choose an acceptable plan yourself—this configuration never selects a paid plan automatically.
+4. Keep the provided settings: Node.js **24**, build command `npm ci --include=dev && npm run build`, start command `npm start`, health check `/`, and `NODE_ENV=production`. Build dependencies are explicitly installed because Tailwind and TypeScript are needed at build time.
+5. Leave Google, Booking.com and Redis variables unset for demo mode. Render supplies `PORT`; do not hardcode it. The existing `next start --hostname 0.0.0.0` command reads `PORT` automatically.
+6. When Render reports the service healthy, open the service URL shown in the Render dashboard and complete a demo journey. Verify the fictional-data notices, German/Persian preferences, dark mode and mobile layout.
+
+Automatic deploys are disabled in the Blueprint (`autoDeployTrigger: off`). After approving future changes, deploy the desired commit manually from Render. Review Blueprint synchronization settings in your dashboard too. Render creation/deployment is a separate action; no deployment is performed merely by committing this file.
+
+You can also create a **Web Service** manually with the same settings and repository root, selecting the Free plan and turning off automatic deploys. The app must be a Web Service, not a Static Site, because trip planning uses server-side API routes.
+
+Render Free services may spin down after inactivity and take time to wake up. Their filesystem is ephemeral, and usage/build/resource limits apply. No trip data or database is required. Check [Render Free service limitations](https://render.com/docs/free) for current eligibility and limits. A successful local build does not prove a Free-instance deployment fits every future workload.
+
+### Optional live discovery on Render
+
+Add the server-only Google key and Redis settings privately in Render's **Environment** panel; never add secret values to `render.yaml`. The only intentionally public key is `NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY`; restrict it to the Maps JavaScript API and your exact Render/custom-domain referrers. Rebuild after changing any `NEXT_PUBLIC_` value. Live Google usage may incur charges; it is unnecessary for the demo. Booking.com inventory remains disconnected pending an authorized integration.
+
+### Verify Render-style startup locally
+
+```sh
+npm ci --include=dev
+npm run build
+PORT=10000 npm start
+```
+
+In another terminal, request port 10000 and complete a demo trip. No custom server or platform adapter is needed. See [deployment checklist](docs/DEPLOYMENT.md) for the release checks. Other Node.js hosts are also supported; no platform-specific adapter is required.
+
+## Vercel (optional alternative)
+
+Render is the primary hosting platform. If you prefer Vercel, import the repository using its Next.js preset and Node.js 24, and retain `npm run build`. The existing `vercel.json` provides optional serverless configuration; choose a plan that supports its function duration if enabling live discovery. No provider keys are required for the demo. Configure any optional secrets in Vercel’s environment settings and rebuild after changing `NEXT_PUBLIC_` values. A Vercel account is not needed to use or deploy the app on Render.
 
 ## Demo versus live discovery
 
@@ -115,39 +166,6 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e
 ```
 
 Set `CI=true` to run browser tests against `npm start` after a build. GitHub Actions performs lint, strict type checking, unit/API tests, production build and desktop/mobile browser checks. No external API keys are required by tests. Actual live-provider and paid API validation are separate, credential-dependent checks.
-
-## Deploy on Render (Free Web Service)
-
-No Vercel account, provider credentials, database or paid API access is required for the public **fictional demo**. The checked-in [render.yaml](render.yaml) defines a Node.js Web Service with `plan: free`, where Render offers that plan for your account/region.
-
-After reviewing and merging this deployment PR:
-
-1. Sign in to [Render](https://dashboard.render.com/), connect GitHub and allow access to `Ladan94/roadtrip-stay-finder`.
-2. Choose **New → Blueprint**, select this repository and branch `main`. Render reads `render.yaml` from the repository root.
-3. Review the service and confirm the **Free** plan. Creating the Blueprint starts the initial deployment; do this only when ready to deploy. If Free is unavailable, stop and choose an acceptable plan yourself—this configuration never selects a paid plan automatically.
-4. Keep the provided settings: Node.js **24**, build command `npm ci --include=dev && npm run build`, start command `npm start`, health check `/`, and `NODE_ENV=production`. Build dependencies are explicitly installed because Tailwind and TypeScript are needed at build time.
-5. Leave Google, Booking.com and Redis variables unset for demo mode. Render supplies `PORT`; do not hardcode it. The existing `next start --hostname 0.0.0.0` command reads `PORT` automatically.
-6. When Render reports the service healthy, open its actual `https://<service-name>.onrender.com` URL and complete a demo journey. Verify the fictional-data notices, German/Persian preferences, dark mode and mobile layout.
-
-Automatic deploys are disabled in the Blueprint (`autoDeployTrigger: off`). After approving future changes, deploy the desired commit manually from Render. Review Blueprint synchronization settings in your dashboard too. Render creation/deployment is a separate action; no deployment is performed merely by committing this file.
-
-You can also create a **Web Service** manually with the same settings and repository root, selecting the Free plan and turning off automatic deploys. The app must be a Web Service, not a Static Site, because trip planning uses server-side API routes.
-
-Render Free services may spin down after inactivity and take time to wake up. Their filesystem is ephemeral, and usage/build/resource limits apply. No trip data or database is required. Check [Render Free service limitations](https://render.com/docs/free) for current eligibility and limits. A successful local build does not prove a Free-instance deployment fits every future workload.
-
-### Optional live discovery on Render
-
-Add the server-only Google key and Redis settings privately in Render's **Environment** panel; never add secret values to `render.yaml`. The only intentionally public key is `NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY`; restrict it to the Maps JavaScript API and your exact Render/custom-domain referrers. Rebuild after changing any `NEXT_PUBLIC_` value. Live Google usage may incur charges; it is unnecessary for the demo. Booking.com inventory remains disconnected pending an authorized integration.
-
-### Verify Render-style startup locally
-
-```sh
-npm ci --include=dev
-npm run build
-PORT=10000 npm start
-```
-
-In another terminal, request port 10000 and complete a demo trip. No custom server or platform adapter is needed. See [deployment checklist](docs/DEPLOYMENT.md) for the release checks. Other Node.js hosts are also supported; Render and Vercel are not runtime dependencies.
 
 ## Troubleshooting
 
